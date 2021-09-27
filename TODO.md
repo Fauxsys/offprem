@@ -1,6 +1,6 @@
 | Feature | Rationale | Example |
 |---------|-----------|---------|
-| Documentation | Document setup and functionality | Document how to use AWSPremise. How to add, delete, and regenerate environments. |
+| Documentation | Document setup and functionality | Document how to add, delete, and regenerate environments. |
 
 | Enhancement | Rationale | Example |
 |-------------|-----------|---------|

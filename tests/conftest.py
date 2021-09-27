@@ -62,7 +62,6 @@ def setup_config_and_credentials_files(tmp_path):
     role_arn = arn:aws:iam::RANDOM:role/ROLENAME
     source_profile = account_with_mfa
 
-
     [role_without_mfa]
     role_arn = arn:aws:iam::RANDOM:role/ROLENAME
     source_profile = account_without_mfa

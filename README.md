@@ -1,5 +1,6 @@
 # Offprem
-A tool to interact with VPCs configured in AWS accounts and roles.
+Tired of trying to remember which region a VPC is located? Offprem will query AWS for all VPC's a profile has access to.
+The name, id, and region of discovered VPC's are stored in a configuration file, which can then be leveraged to automatically create STS tokens and boto3 sessions.
 
 ## Installation
 Requires Python 3.9+:
@@ -13,25 +14,7 @@ python -m pip install offprem
 - Automatically create STS tokens and boto3 sessions to interact with VPCs.
 
 ## Usage
-Create a configuration file:
-```python
-from offprem import AWSPremise
-
-search_tags = ['Tags', 'to', 'search', 'for']
-
-premise = AWSPremise()
-premise.assign(profile_name='profile_name')
-premise.get_all_vpcs(search_tags=search_tags, empty_tags=True)
-```
-
-Providing a profile_name and vpc_name to `AWSPremise().assign` will automatically create STS credentials and populates a boto3 session to use. Leverage this by assigning a VPC to query:
-```python
-from offprem import AWSPremise
-
-premise = AWSPremise()
-premise.assign(profile_name='profile_name', vpc_name='vpc_name')
-resource_ec2 = premise.session.resource('ec2')
-```
+Read the [tutorial](/docs/Tutorial.md).
 
 ## Local Development and Testing
 ### Development
@@ -43,6 +26,7 @@ $ python -m venv venv --prompt offprem
 $ source venv/bin/activate
 (offprem) $ python -m pip install -U pip
 ```
+
 Install offprem locally.
 ```shell
 (parserconfig) $ python -m pip install -e ".[test]"
