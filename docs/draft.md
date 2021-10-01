@@ -1,5 +1,16 @@
 ## Setup
-Your aws config and credentials files must be properly configured.
+Your `~/.aws/credentials` file must be properly configured.
+
+```ini
+[account]
+aws_access_key_id = ABCDEFG
+aws_secret_access_key = HIJKLMNOP
+mfa_serial = arn:aws:iam:987654321:mfa/UserName
+
+[role]
+role_arn = arn:aws:iam::123456789:role/RoleName
+source_profile = account
+```
 
 ## Docker
 Using docker-compose:
