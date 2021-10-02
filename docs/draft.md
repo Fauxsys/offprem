@@ -1,6 +1,3 @@
-## Setup
-Your aws config and credentials files must be properly configured.
-
 ## Docker
 Using docker-compose:
 ```
@@ -11,23 +8,12 @@ Using docker container run:
 docker image build -t offprem . && docker container run -v ~/.aws:/root/.aws --name offprem --rm offprem
 ```
 
-
-Define custom paths for configuration files:
+- Without using STS credentials, an account protected via 2FA would require a token code for every region when executing `get_all_vpc`.
+- `get_all_vpcs` is safe to re-run since every section is uniquely named.
+- After time, it is possible that VPCs are decommissioned. Your configuration can be cleaned manually by deleting specific sections, but it could potentially save more time simply deleting the file and re-running `get_all_vpcs`.
 ```python
 from pathlib import Path
 
-from offprem import AWSPremise, ConfigureVPC, ConfigureCredentials
-
-vpc_configuration_file = Path.home().joinpath('.aws/environments.ini')
-vpc_configuration = ConfigureVPC(configuration_file=vpc_configuration_file)
-
-session_configuration_file = Path.home().joinpath('.aws/credentials')
-session_configuration = ConfigureCredentials(configuration_file=session_configuration_file)
-
-premise = AWSPremise(vpc_configuration=vpc_configuration, session_configuration=session_configuration)
-premise.assign(profile_name='profile_name')
+configuration_file = Path.home().joinpath('.aws/environments.ini')
+configuration_file.unlink()
 ```
-
-- Query AWS for all VPC's a profile has access to.
-- Found VPC's can be stored in a configuration file along with the name, id, and region.
-- The configuration file can then be leveraged to automatically create STS tokens and boto3 sessions.

@@ -28,11 +28,11 @@ class Profile:
 
 @dataclass
 class ConfigureCredentials(ParserConfig):
-    """ Retrieve credentials from a configuration file. """
+    """ Retrieve AWS credentials from a configuration file. """
     configuration_file: Path = field(default=Path.home().joinpath('.aws/credentials'))
 
     def query(self, profile_name: str) -> Profile:
-        """ Query the configuration file that stores AWS credentials. """
+        """ Retrieve credential settings from `self.configuration_file`. """
         source_profile = self.configuration_file_parser.get(section=profile_name, option='source_profile', fallback=None)
         role_arn = self.configuration_file_parser.get(section=profile_name, option='role_arn', fallback=None)
         mfa_serial = self.configuration_file_parser.get(section=source_profile or profile_name,
@@ -42,7 +42,7 @@ class ConfigureCredentials(ParserConfig):
                        mfa_serial=mfa_serial)
 
     def sts(self, profile_name: str) -> 'SecurityTokenService':
-        """ Retrieve temporary credentials from the Security Token Service.  """
+        """ Retrieve temporary credentials from the Security Token Service. """
         profile = self.query(profile_name=profile_name)
         sts = SecurityTokenService(profile=profile)
         return sts
@@ -50,23 +50,23 @@ class ConfigureCredentials(ParserConfig):
 
 @dataclass
 class ConfigureVPC(ParserConfig):
-    """ Set and retrieve VPC ID's and regions from a configuration file. """
+    """ Set and retrieve VPC ID's and regions in a configuration file. """
     configuration_file: Path = field(default=Path.home().joinpath('.aws/environments.ini'))
     create_configuration_file: bool = field(default=True, repr=False)
 
     def query(self, vpc_name: str) -> VirtualPrivateCloud:
-        """ Query the configuration file that stores AWS environments. """
+        """ Retrieve VPC settings from `self.configuration_file`. """
         vpc_id = self.configuration_file_parser.get(section=vpc_name, option='vpc_id')
         region_name = self.configuration_file_parser.get(section=vpc_name, option='region_name')
         return VirtualPrivateCloud(id=vpc_id, name=vpc_name, region=region_name)
 
     def populate_configuration_file(self, vpc_id: str, name: str, region: str) -> None:
-        """ Add a single VPC to the configuration file. """
+        """ Add a single VPC to `self.configuration_file`. """
         try:
-            logger.info(f'{name = }')
+            logging.info(msg=f'{name = }')
             self.configuration_file_parser.add_section(section=name)
         except DuplicateSectionError:
-            pass
+            pass  # Every section is uniquely named with its VPC ID and region.
         finally:
             self.configuration_file_parser[name]['vpc_id'] = vpc_id
             self.configuration_file_parser[name]['region_name'] = region
@@ -102,23 +102,27 @@ class AWSPremise:
         """ Gather existing VPCs in every available region. """
         assert any([search_tags, empty_tags]), 'get_all_vpcs requires either search_tags or empty_tags to be set.'
 
-        for region in self.session.get_available_regions('ec2'):
+        for region in self.session.get_available_regions(service_name='ec2'):
             try:
-                for vpc in self.session.resource('ec2', region_name=region).vpcs.all():
+                for vpc in self.session.resource(service_name='ec2', region_name=region).vpcs.all():
                     if found_tag := self.search_vpc_tags(vpc=vpc, search_tags=search_tags) if search_tags else None:
                         name = f'{found_tag}|{vpc.id}|{region}'
                     elif not found_tag and empty_tags:
                         name = f'{vpc.id}|{region}'
                     else:
-                        # found_tag is not defined and empty_tags is set to False
+                        # The else clause is met when `found_tag` is not defined and `empty_tags` is set to False.
+                        # Move on to the next VPC in the `vpc` variable.
                         continue
 
                     self.vpc_configuration.populate_configuration_file(vpc_id=vpc.id, name=name, region=region)
 
             except ClientError:
+                # When no VPCs exist in a region, `ClientError` is raised. We pass this exception to move on to the
+                # next region. Unfortunately, there are many conditions where `ClientError` can be raised, so a
+                # potential issue could be masked.
                 pass
 
-        # Only save the configuration file if no unhandled exceptions occur
+        # Only save the configuration file if no unhandled exceptions occur.
         self.vpc_configuration.save_configuration_file()
 
 
@@ -141,6 +145,7 @@ class SecurityTokenService:
 
     def rename_sts_credentials(self, credentials: dict) -> dict:
         """ Rename keys for credentials received by the Security Token Service. """
+        # This is done to support kwargs unpacking into `boto3.session.Session` objects.
         self.credentials['aws_access_key_id'] = credentials['Credentials']['AccessKeyId']
         self.credentials['aws_secret_access_key'] = credentials['Credentials']['SecretAccessKey']
         self.credentials['aws_session_token'] = credentials['Credentials']['SessionToken']
@@ -172,22 +177,3 @@ class SecurityTokenService:
                                                  RoleSessionName='AssumeRole')
 
         return self.rename_sts_credentials(credentials=credentials)
-
-
-logging.basicConfig(format='{name} - {levelname} - {message}', level=logging.INFO, style='{')
-logger = logging.getLogger(__name__)
-
-
-def example():
-    configuration_file = Path('/tmp/file_constructor.ini')
-
-    vpc_configuration = ConfigureVPC(configuration_file=configuration_file)
-    vpc_configuration.unload_configuration_file()
-    premise = AWSPremise(vpc_configuration=vpc_configuration)
-    premise.assign(profile_name='tutorial')
-
-    tags = ['Stack']
-    premise.get_all_vpcs(search_tags=tags, empty_tags=True)
-    # premise.get_all_vpcs(search_tags=tags, empty_tags=False)
-    # premise.get_all_vpcs(search_tags=None, empty_tags=True)
-    # premise.get_all_vpcs(search_tags=None, empty_tags=False)
