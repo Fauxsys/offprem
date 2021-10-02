@@ -1,16 +1,13 @@
 | Feature | Rationale | Example |
 |---------|-----------|---------|
-| Documentation | Document setup and functionality | Document how to add, delete, and regenerate environments. |
+| Save tags to the configuration file and allow them to be searched for | `get_vpc_name()` will only reflect the first matched tag in the event multiple are given. Hosts can have multiple tags which will not be reflected in the name. | Generate an iterable of vpc's that match the given tag.
+| Store OTP on device | offprem will be able to authenticate itself without requiring an end user to input the OTP token. |
+| Moto for mock testing boto3 | Do not make actual boto3 calls. Allow the use of fabricated AWS credentials for testing. | |
 
 | Enhancement | Rationale | Example |
 |-------------|-----------|---------|
-| Implement library logging | Remove basicConfig handlers | Replace all `logger` calls with `logging` |
-| Add docstrings to tests | Improved cognition of tests | |
+| Add docstrings and comments to tests | Improved cognition of tests | |
 | CONTRIBUTING.md | Guidelines for contributors |  |
-| Moto for mock testing boto3 | | |
-| Documentation | Extensive documentation of code | Document Each function and class |
-| Save tags to the configuration file and allow them to be searched for | `get_vpc_name()` will only reflect the first matched tag in the event multiple are given. Hosts can have multiple tags which will not be reflected in the name. | Generate an iterable of vpc's that match the given tag.
-| Store OTP on device | offprem will be able to authenticate itself without requiring an end user to input the OTP token. |
 
 | Bug | Context | Impact |
 |-----|---------|--------|

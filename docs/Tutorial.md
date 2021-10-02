@@ -1,3 +1,19 @@
+## Setup
+Your `~/.aws/credentials` file must be properly configured.
+
+```ini
+[account]
+aws_access_key_id = ABCDEFG
+aws_secret_access_key = HIJKLMNOP
+mfa_serial = arn:aws:iam:987654321:mfa/UserName
+
+[role]
+role_arn = arn:aws:iam::123456789:role/RoleName
+source_profile = account
+```
+
+Based on this example configuration file, `profile_name` can be either `account` or `role`. In the examples below, however, I will use `default` as the `profile_name`.
+
 # Save VPCs to a configuration file
 ```python
 from offprem import AWSPremise

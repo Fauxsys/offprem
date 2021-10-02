@@ -1,6 +1,6 @@
 # Offprem
-Tired of trying to remember which region a VPC is located? Offprem will query AWS for all VPC's a profile has access to.
-The name, id, and region of discovered VPC's are stored in a configuration file, which can then be leveraged to automatically create STS tokens and boto3 sessions.
+Offprem will query AWS for all VPC's a profile has access to.
+The vpc_id, region, and associated tags of each discovered VPC is stored in a configuration file, which can then be leveraged to automatically create STS tokens and boto3 sessions.
 
 ## Installation
 Requires Python 3.9+:

@@ -2,6 +2,19 @@ import pytest
 
 from conftest import vpc_list, profile_list
 
+
+@pytest.mark.skip(reason='Method not yet implemented.')
+def example(premise):
+    premise.assign(profile_name='tutorial')
+
+    # TODO: Parametrize `search_tags` and `empty_tags`
+    tags = ['Stack']
+    premise.get_all_vpcs(search_tags=tags, empty_tags=True)
+    premise.get_all_vpcs(search_tags=tags, empty_tags=False)
+    premise.get_all_vpcs(search_tags=None, empty_tags=True)
+    premise.get_all_vpcs(search_tags=None, empty_tags=False)
+
+
 @pytest.mark.skip(reason='Expects configuration files for ConfigureVPC and ConfigureCredentials exists.')
 @pytest.mark.parametrize(argnames='profile_name', argvalues=profile_list(), ids=repr)
 def test_premise_assign(proper_premise, profile_name):

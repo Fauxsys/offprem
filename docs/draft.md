@@ -1,17 +1,3 @@
-## Setup
-Your `~/.aws/credentials` file must be properly configured.
-
-```ini
-[account]
-aws_access_key_id = ABCDEFG
-aws_secret_access_key = HIJKLMNOP
-mfa_serial = arn:aws:iam:987654321:mfa/UserName
-
-[role]
-role_arn = arn:aws:iam::123456789:role/RoleName
-source_profile = account
-```
-
 ## Docker
 Using docker-compose:
 ```
@@ -22,4 +8,12 @@ Using docker container run:
 docker image build -t offprem . && docker container run -v ~/.aws:/root/.aws --name offprem --rm offprem
 ```
 
-- Without this, an account protected via 2FA would prompt for the code for every region when executing `get_all_vpc`.
+- Without using STS credentials, an account protected via 2FA would require a token code for every region when executing `get_all_vpc`.
+- `get_all_vpcs` is safe to re-run since every section is uniquely named.
+- After time, it is possible that VPCs are decommissioned. Your configuration can be cleaned manually by deleting specific sections, but it could potentially save more time simply deleting the file and re-running `get_all_vpcs`.
+```python
+from pathlib import Path
+
+configuration_file = Path.home().joinpath('.aws/environments.ini')
+configuration_file.unlink()
+```
