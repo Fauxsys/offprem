@@ -1,6 +1,5 @@
 | Feature | Rationale | Example |
 |---------|-----------|---------|
-| Save tags to the configuration file | `get_vpc_name()` will only reflect the first matched tag in the event multiple are given. Hosts can have multiple tags which will not be reflected in the name. | `json.dumps` when saving to file, `json.loads` when retrieving. |
 | Allow tags to be searched for | Allow an alternative, more intuitive way to assign a VPC to `AWSPremise`. | Generate an iterable of vpc's that match the given tag. |
 | Store OTP on device | offprem will be able to authenticate itself without requiring an end user to input the OTP token. |
 | Moto for mock testing boto3 | Do not make actual boto3 calls. Allow the use of fabricated AWS credentials for testing. | [test_ec2](https://github.com/spulec/moto/tree/e00af2f73cb7d27c3755f18b2161b9acbd8ca8aa/tests/test_ec2) |

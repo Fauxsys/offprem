@@ -3,6 +3,7 @@ from typing import Optional, Any, Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 import logging
+import json
 
 import boto3
 from parserconfig import ParserConfig
@@ -60,7 +61,7 @@ class ConfigureVPC(ParserConfig):
         region_name = self.configuration_file_parser.get(section=vpc_name, option='region_name')
         return VirtualPrivateCloud(id=vpc_id, name=vpc_name, region=region_name)
 
-    def populate_configuration_file(self, vpc_id: str, name: str, region: str) -> None:
+    def populate_configuration_file(self, vpc_id: str, name: str, region: str, tags: Optional[str]) -> None:
         """ Add a single VPC to `self.configuration_file`. """
         try:
             logging.info(msg=f'{name = }')
@@ -70,6 +71,8 @@ class ConfigureVPC(ParserConfig):
         finally:
             self.configuration_file_parser[name]['vpc_id'] = vpc_id
             self.configuration_file_parser[name]['region_name'] = region
+            if tags:
+                self.configuration_file_parser[name]['tags'] = tags
 
 
 @dataclass
@@ -98,7 +101,14 @@ class AWSPremise:
                 if tag.get('Key') in search_tags:
                     return tag['Value'].lower()
 
-    def get_all_vpcs(self, search_tags: Optional[Iterator] = None, empty_tags: bool = False):
+    @staticmethod
+    def reformat_vpc_tags(vpc: boto3) -> Optional[str]:
+        """ Flatten the list of dicts into one dict and convert the dict object to a string. """
+        extract_tag_values = {tag['Key']: tag['Value'] for tag in vpc.tags}
+        tags = json.dumps(obj=extract_tag_values) if extract_tag_values else None
+        return tags
+
+    def get_all_vpcs(self, search_tags: Optional[Iterator] = None, empty_tags: bool = False) -> None:
         """ Gather existing VPCs in every available region. """
         assert any([search_tags, empty_tags]), 'get_all_vpcs requires either search_tags or empty_tags to be set.'
 
@@ -114,7 +124,8 @@ class AWSPremise:
                         # Move on to the next VPC in the `vpc` variable.
                         continue
 
-                    self.vpc_configuration.populate_configuration_file(vpc_id=vpc.id, name=name, region=region)
+                    tags = self.reformat_vpc_tags(vpc=vpc)
+                    self.vpc_configuration.populate_configuration_file(vpc_id=vpc.id, name=name, region=region, tags=tags)
 
             except ClientError:
                 # When no VPCs exist in a region, `ClientError` is raised. We pass this exception to move on to the
