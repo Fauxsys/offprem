@@ -1,13 +1,16 @@
 | Feature | Rationale | Example |
 |---------|-----------|---------|
-| Save tags to the configuration file and allow them to be searched for | `get_vpc_name()` will only reflect the first matched tag in the event multiple are given. Hosts can have multiple tags which will not be reflected in the name. | Generate an iterable of vpc's that match the given tag.
+| Allow tags to be searched for | Allow an alternative, more intuitive way to assign a VPC to `AWSPremise`. | Generate an iterable of vpc's that match the given tag. |
 | Store OTP on device | offprem will be able to authenticate itself without requiring an end user to input the OTP token. |
-| Moto for mock testing boto3 | Do not make actual boto3 calls. Allow the use of fabricated AWS credentials for testing. | |
+| Moto for mock testing boto3 | Do not make actual boto3 calls. Allow the use of fabricated AWS credentials for testing. | [test_ec2](https://github.com/spulec/moto/tree/e00af2f73cb7d27c3755f18b2161b9acbd8ca8aa/tests/test_ec2) |
+| Command Line Tool | VPCs can be easily listed from the terminal. | `__main__.py` can run `get_all_vpcs` with a `--profiles` option; or a `--search` flag to show VPCs that match a tag.
 
 | Enhancement | Rationale | Example |
 |-------------|-----------|---------|
 | Add docstrings and comments to tests | Improved cognition of tests | |
 | CONTRIBUTING.md | Guidelines for contributors |  |
+| Consider saving the profile name to the configuration file | When `AWSPremise().assign` is called, only `vpc_name` is required. `profile_name` can be optional. |
+| Automated deletion of stale VPCs | Remove the need to manually prune the configuration file. | Load a new parser before saving the contents when `get_all_vpcs` is called. The implementation must be profile-specific since multiple profiles can exist in the file. |
 
 | Bug | Context | Impact |
 |-----|---------|--------|
