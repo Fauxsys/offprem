@@ -52,5 +52,5 @@ You can also test offprem as an installed package.
 There should now be a wheel in the `dist` directory.
 ```shell
 (offprem) $ ls -1 dist
-offprem-0.0.1b0-py3-none-any.whl
+offprem-0.0.2b0-py3-none-any.whl
 ```
